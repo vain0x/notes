@@ -39,18 +39,20 @@ TODO:
 
 ```rust
 {
-    // twice はここで、このブロックの環境に導入される。
+    // square はここで、このブロックの環境に導入される。
     // a は導入されない。
 
-    let a = twice(3); // a はここで導入される。
+    let a = square(3); // a はここで導入される。
 
-    fn twice(x: i32) -> f64 {
+    fn square(x: i32) -> f64 {
         x * x
     }
 }
 ```
 
-- hoisting されるかは宣言の種類による。
+- 何を hoisting するかは言語によるし、宣言の種類にもよる。
+    - 変数宣言を hoisting すると未定義の変数が使えてしまって困りがち
+    - 関数宣言を hoisting しないと相互再帰がしづらくなりがち
 - 単一のブロックに hoisting される同じ名前のシンボルが複数あるときどうするかは言語による。
 
 ## shadowing (隠蔽)
@@ -98,6 +100,9 @@ TODO:
 }
 ```
 
+- shadowing を認めず、名前の重複をエラーにするという戦略もありうる。
+    - 同じパターンに含まれるシンボルを shadowing できたらカオス (`let (x, x) = (1, 2) in x //=> 2`!?)
+
 ## 構文木を走査する名前解決処理
 
 構文木上を DFS 順序で走査して、構文木に含まれるすべての名前を解決する手続き。
@@ -127,16 +132,52 @@ TODO:
 - 解決できなければ、上のブロックを見て同じ処理を繰り返す。
 - 最後まで解決されなければ未解決 (unresolved) とする。
 
-## 名前解決が型やトレイト、動的な状態に依存するケース
+## 名前解決が型や動的な状態に依存するケース
 
-オブジェクト指向言語によくあるドット記法 `x.f()` は、`f` が何を指すかが `x` の型によるので、型検査・型推論の後でないと処理できない。
+オブジェクト指向言語によくあるドット記法 `x.f()` は、`f` が何を指すかが `x` の型によるので、型検査・型推論の後でないと解決できない。
 
 `eval` などにより動的にシンボルを環境に導入できる言語では、名前は実行時まで解決できない。
 
 - [Dependent names - cppreference.com](https://en.cppreference.com/w/cpp/language/dependent_name) (C++ ではテンプレート引数が何に解決されるかによって解決結果が異なるパスを依存名と呼ぶ)
 
-## See also
+## 個々の構文の名前解決
+
+### ローカル変数の宣言 (let)
+
+式 init を評価して、それをパターン pat にマッチさせた後、パターンが定義するシンボルを環境に導入して next を評価する。
+
+```rust
+    // ML の構文
+
+    let pat = init in next
+    
+    // Rust の構文
+
+    let pat = init;
+    next
+```
+
+記述順とは異なり、init → pat → next の順で処理する。
+
+```rust
+    // 疑似コード
+    resolve_expr(init, &env);       // 式は環境を (一時的に拡張するかもしれないが、最終的には) 変化させない
+    resolve_pat(pat, &mut env);     // パターンは環境を拡張する可能性がある
+    resolve_expr(next, &env);
+```
+
+### 関数宣言
+
+関数の宣言を hoisting しないとき、関数のシンボルを環境に導入するタイミングと、本体の名前解決を行うタイミングの順番に注意。関数を先に導入すると、本体でその関数の再帰呼び出しを認めることになる。
+
+```fsharp
+    let rec f () = f () // f 自身を呼ぶ
+
+    let f () = f () // 上の f を呼ぶ
+```
+
+## 参考
 
 - [Name lookup - cppreference.com](https://en.cppreference.com/w/cpp/language/lookup) (C++ の名前ルックアップ)
-- [Name resolution - Guide to Rustc Development](https://rustc-dev-guide.rust-lang.org/name-resolution.html)
-- [Three Architectures for a Responsive IDE](https://rust-analyzer.github.io/blog/2020/07/20/three-architectures-for-responsive-ide.html)
+- [Name resolution - Guide to Rustc Development](https://rustc-dev-guide.rust-lang.org/name-resolution.html) (Rust コンパイラの名前解決に関する説明)
+- [Three Architectures for a Responsive IDE](https://rust-analyzer.github.io/blog/2020/07/20/three-architectures-for-responsive-ide.html) (IDE の性能について書かれた記事。言語の名前解決ルールが関係してくる)
