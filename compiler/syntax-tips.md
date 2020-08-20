@@ -25,13 +25,13 @@ type A = B
 Rust の match 式とレコード式は微妙に衝突していて、match 式の条件部分にレコード式を直接書くことはできない。
 
 ```rust
-struct K<T> { value: T }
+    struct K<T> { value: T }
 
-    match K { value: true } { K { value } => value }
+    match K { value: () } { _ => {} }
     //      ^ これを match の本体の開始と区別できない
 ```
 
-同様に if や while の条件式、`for` のイテレータにも同様の制限がある。
+同様に if や while の条件式や for のイテレータにも同様の制限がある。
 
 ```rust
     if K { value: true }.value {}
@@ -46,7 +46,7 @@ struct K<T> { value: T }
 
 ## フィールドと引数の構文の類似
 
-レコードのフィールドと(名前付き)引数は構文的に似ている。差異:
+レコードのフィールドと名前付き引数は構文的に似ている。差異:
 
 - フィールドの宣言は可視性を持つが、仮引数は可視性を持たない
     - TypeScript などの一部の言語ではコンストラクタのパラメータに可視性をつけることができて、そのようなパラメータは自動的にフィールドに昇格する機能がある ([TypeScript\: Handbook - Classes](https://www.typescriptlang.org/docs/handbook/classes.html#parameter-properties))
