@@ -122,7 +122,7 @@ const zero = map.get(fromEntries)
 const unknownMap = new Map<unknown, unknown>(JSON.parse(entriesJsonText))
 
 const valid = typeof unknownMap.get("ok") === "boolean"
-    && typeof unknownMap.get("status") === "number
+    && typeof unknownMap.get("status") === "number"
 if (valid) { // スマートキャストは効かない
     const myMap = unknownMap as MyMap
 }
