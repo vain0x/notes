@@ -21,6 +21,10 @@ foo(i => i * i) //=> 14
 
 ## エフェクトを返す
 
+副作用を表現するデータと、その副作用を処理した後の続きの計算を表す関数を返す。
+
+言語側でサポートがないとめちゃくちゃ煩雑になる。(ジェネレータ構文を使えばできるが、TypeScript ではうまく型がつかなさそう。F# のコンピュテーション式なら yield をオーバーロードできるので型をつけられる気がする。)
+
 ```ts
 type FooResult<A> =
     {
@@ -64,4 +68,11 @@ const performFooResult = (result: FooResult<number>) => {
 }
 
 performFooResult(foo()) //=> 6
+```
+
+DI と違って引数がフリーなので副作用を処理する手段がなくても関数を呼べる。関数をテストするとき、入力によっては一部の副作用が発生しないテストケースがしばしばあるが、そういうときにモックを用意する必要がない。(とはいえ TypeScript なら `null!` を渡した方が楽かもしれない。)
+
+```ts
+const result = foo()
+assert.equal(result.kind, "FOO_YIELD")
 ```
