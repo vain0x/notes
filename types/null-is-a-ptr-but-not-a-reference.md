@@ -18,4 +18,4 @@ C言語はポインタ型の値として、脱参照できないポインタ (`*
 
 Java 界隈の事情はよく知らないが C# に関していえば、`default(T)` (型 `T` の既定値) がビットパターンとして 0 を持っていてほしい (配列を確保するとき領域をゼロ埋めするだけで済むので嬉しい) という事情がある。
 とはいえ null に起因するもろもろの不都合と比べてどっちがよいかという話であって、null は始めから除いておいてほしかった。
-実際、C# 9 から参照型は null を持てないようになる。(参照型 T は null を持てなくなり、従来の null 許容な参照型は `T?` と書かなければいけなくなる、という機能。参考: [null 許容参照型](https://www.ufcpp.net/study/csharp/resource/nullablereferencetype/).)
+実際、C# 8 から参照型は null を持てないようになる。(参照型 T は null を持てなくなり、従来の null 許容な参照型は `T?` と書かなければいけなくなる、という機能。参考: [null 許容参照型](https://www.ufcpp.net/study/csharp/resource/nullablereferencetype/).)
